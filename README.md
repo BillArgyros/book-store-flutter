@@ -1,16 +1,20 @@
-# e_shop_test
+# Book-Store
 
-A new Flutter application.
+This project is an early version of an online book store that was developed using Flutter and Firebase. The application provides the users with the ability to set up an account and log in to the application. The users have the ability to browse books based on their genre, search for a specific title, bookmark their favoutite titles or add them to their cart. Firebase is responsible of storing and help the application retrieve all the above information.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+The link below contains the apk of a beta version of the application. Currently the application can be run in Android devices.
 
-A few resources to get you started if this is your first Flutter project:
+[APK](https://drive.google.com/file/d/1WxHcdDnn9QsUA-9WlQG5D5FZe8kSxDbA/view?usp=sharing)
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+### How to use
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+A step by step guide on how to use the app's features
+
+End with a few screenshots
+
+## Built with
+
+* [Flutter 2.0](https://flutter.dev/?gclid=CjwKCAiA6Y2QBhAtEiwAGHybPcVyifrnxlpAIyg2l9Oaow79u_W2-IJoxEPYWu8zdTVh0qYXMAEtvxoC2LUQAvD_BwE&gclsrc=aw.ds) - The programming language used
+* [Firebase](https://firebase.google.com)
