@@ -6,7 +6,7 @@ This project is an early version of an online book store that was developed usin
 
 The link below contains the apk of a beta version of the application. Currently the application can be run in Android devices.
 
-[APK](https://drive.google.com/file/d/1WxHcdDnn9QsUA-9WlQG5D5FZe8kSxDbA/view?usp=sharing)
+[APK](https://drive.google.com/file/d/1V13DqAve5tYxhHxd4n6ikOjNHRVF3bji/view?usp=sharing)
 
 ### How to use
 
