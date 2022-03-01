@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../custom_paint.dart';
+import '../loading.dart';
 import '../models/user_model.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -15,18 +16,18 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final _formKey = GlobalKey<FormState>();
-
   final AuthServices _authServices = AuthServices();
-
   String email = '';
   String password = '';
   bool visibility = false;
   String phone = '';
   String name = '';
   bool error = false;
-  List<dynamic> cart = [];
-  List<dynamic> bookMark = [];
+  final _name = TextEditingController();
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _validate = false;
+  bool loading=false;
 
   @override
   Widget build(BuildContext context) {
@@ -37,87 +38,165 @@ class _SignUpScreenState extends State<SignUpScreen> {
       home: Scaffold(
         backgroundColor: const Color.fromRGBO(229, 229, 229, 1),
         resizeToAvoidBottomInset: false,
-        body: Stack(
-          children: [
-            CustomPaint(
-              painter:
-              Chevron(screenHeight: screenHeight, screenWidth: screenWidth),
-              child: SizedBox(
-                width: screenWidth * 1,
-                height: screenHeight * 0.5,
-              ),
-            ),
-            SizedBox(
-              width: screenWidth * 1,
-              height: screenHeight * 0.1,
-            ),
-            // create a form responsible for validating the proper format of the users information
-            Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: screenWidth * 0.9,
-                    height: screenHeight * 0.5,
-                    child: Card(
-                      elevation: 10,
-                      color: const Color.fromRGBO(229, 229, 229, 1),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _textFieldName(context, screenWidth, screenHeight),
-                          _textFieldPhone(context, screenWidth, screenHeight),
-                          _textFieldEmail(context, screenWidth, screenHeight),
-                          Stack(
-                            children: [
-                              _textFieldPassword(
-                                  context, screenWidth, screenHeight),
-                              Container(
-                                margin:
-                                const EdgeInsets.only(top: 10, left: 20),
-                                width: screenWidth * 0.8,
-                                height: screenHeight * 0.06,
-                                child: Align(
-                                  alignment: Alignment.centerRight,
-                                  child: _passwordIcon(),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: screenWidth * 1,
-                    height: screenHeight * 0.03,
-                  ),
-                  _signUpButton(context, screenWidth, screenHeight),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 50.0, left: 30),
-              child: Container(
-                width: screenWidth * 0.6,
-                child: const Text(
-                  'Create new account',
-                  style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+        body: SizedBox(
+          width: screenWidth * 1,
+          height: screenHeight * 1,
+          child: Stack(
+            children: [
+              CustomPaint(
+                painter: Chevron(screenHeight: screenHeight, screenWidth: screenWidth),
+                child: SizedBox(
+                  width: screenWidth*1,
+                  height: screenHeight*0.5,
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 50.0),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: error? const Text('Invalid Email Format',style: TextStyle(color: Colors.red,fontWeight: FontWeight.bold)):Text(''),
+              Padding(
+                padding: const EdgeInsets.only(top: 50.0, left: 20),
+                child: SizedBox(
+                  width: screenWidth * 0.6,
+                  child: const Text(
+                    'Create new account',
+                    style:
+                    TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+                  ),
+                ),
               ),
-            )
-          ],
+              Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: screenWidth * 0.9,
+                      height: screenHeight * 0.55,
+                      //returns a Widget of type Card which holds the text fields and the buttons
+                      child: !loading? _card(screenWidth,screenHeight):Loading(),
+                    ),
+                  ],
+                ),
+              ),
+              //if the email is not properly formatted this message appears to inform the user
+              Padding(
+                padding: const EdgeInsets.only(bottom: 50.0),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: error
+                      ? const Text('Invalid Email Format',
+                      style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold))
+                      : const Text(''),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  Widget _card(screenWidth,screenHeight){
+    return !loading? Card(
+      elevation: 10,
+      color: const Color.fromRGBO(229, 229, 229, 1),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Column(
+            children: [
+              Container(
+                  child: _textFieldName(
+                      context, screenWidth, screenHeight)),
+              //if the validation process is active the application checks if
+              // the user credentials are valid. If they are not valid, an
+              //appropriate message informs the user
+              _validate
+                  ? _name.text.isEmpty
+                  ? const Padding(
+                padding: EdgeInsets.only(
+                    top: 8.0, left: 20),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Name cannot be empty',
+                    style: TextStyle(
+                        fontSize: 8,
+                        color: Colors.red),
+                  ),
+                ),
+              )
+                  : const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: SizedBox(),
+              )
+                  : const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: SizedBox(),
+              ),
+            ],
+          ),
+          Container(
+              child: _textFieldEmail(
+                  context, screenWidth, screenHeight)),
+          _validate
+              ? _email.text.isEmpty
+              ? const Padding(
+            padding: EdgeInsets.only(
+                top: 8.0, left: 20),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Email cannot be empty',
+                style: TextStyle(
+                    fontSize: 8,
+                    color: Colors.red),
+              ),
+            ),
+          )
+              : const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: SizedBox(),
+          )
+              : const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: SizedBox(),
+          ),
+          Container(
+              child: _textFieldPassword(
+                  context, screenWidth, screenHeight)),
+          _validate
+              ? _password.text.length < 6
+              ? const Padding(
+            padding: EdgeInsets.only(
+                top: 8.0, left: 20),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Password must be 6+ chars',
+                style: TextStyle(
+                    fontSize: 8,
+                    color: Colors.red),
+              ),
+            ),
+          )
+              : const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: SizedBox(),
+          )
+              : const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: SizedBox(),
+          ),
+          _signUpButton(context, screenWidth, screenHeight),
+          const Text(
+            'OR',
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+                fontWeight: FontWeight.bold),
+          ),
+          _logInButton(context, screenWidth, screenHeight),
+        ],
+      ),
+    ) : Loading();
   }
 
   Widget _textFieldName(
@@ -125,15 +204,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(top: 5),
+        padding: const EdgeInsets.only(top: 0),
         child: SizedBox(
           width: screenWidth * 0.8,
-          height: screenHeight * 0.09,
+          height: screenHeight * 0.06,
           child: TextFormField(
-            validator: (text) =>
-            text!.isEmpty ? 'Please enter your name' :null,
+            controller: _name,
             onChanged: (text) => name = text,
             decoration: const InputDecoration(
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.all(Radius.circular(16.0)),
+              ),
               contentPadding:
               EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
               enabledBorder: OutlineInputBorder(
@@ -150,7 +231,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  Widget _textFieldPhone(
+  Widget _textFieldEmail(
       BuildContext context, double screenWidth, double screenHeight) {
     return Align(
       alignment: Alignment.center,
@@ -158,11 +239,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
         padding: const EdgeInsets.only(top: 5),
         child: SizedBox(
           width: screenWidth * 0.8,
-          height: screenHeight * 0.09,
+          height: screenHeight * 0.06,
           child: TextFormField(
-            validator: (text) =>
-            text!.isEmpty ? 'Please enter a phone number' : null,
-            onChanged: (text) => phone = text,
+            controller: _email,
+            // validator: (text) => text!.isEmpty?'' :null,
+            onChanged: (text) => email = text,
             decoration: const InputDecoration(
               contentPadding:
               EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
@@ -172,40 +253,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.all(Radius.circular(16.0)),
               ),
-              labelText: 'Phone',
+              labelText: 'email',
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _textFieldEmail(
-      BuildContext context, double screenWidth, double screenHeight) {
-    return Align(
-      alignment: Alignment.center,
-      child: Padding(
-        padding: const EdgeInsets.only(top: 5),
-        child: SizedBox(
-          width: screenWidth * 0.8,
-          height: screenHeight * 0.09,
-          child: TextFormField(
-            validator: (text) => text!.isEmpty?'Please enter a valid email' :null,
-            onChanged: (text) => email = text,
-            decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(
-                    vertical: 10.0, horizontal: 10.0),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(16.0)),
-                ),
-                labelText: 'email',
-          ),
-        ),
-      ),
-    ),
     );
   }
 
@@ -214,21 +266,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
     return Align(
       alignment: Alignment.center,
       child: Padding(
-        padding: const EdgeInsets.only(top: 5),
+        padding: const EdgeInsets.only(top: 10),
         child: SizedBox(
           width: screenWidth * 0.8,
-          height: screenHeight * 0.09,
+          height: screenHeight * 0.06,
           child: TextFormField(
-              validator: (text) =>
-              text!.length < 6 ? 'Password must be 6+ chars' : null,
+              controller: _password,
               onChanged: (text) => password = text,
-              decoration: const InputDecoration(
-                contentPadding:
-                EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-                enabledBorder: OutlineInputBorder(
+              decoration: InputDecoration(
+                suffixIcon: InkWell(
+                  splashColor: Colors.transparent,
+                  onTap: () => setState(() {
+                    visibility = !visibility;
+                  }),
+                  child: visibility
+                      ? const Icon(Icons.visibility)
+                      : const Icon(
+                    Icons.visibility_off,
+                  ),
+                ),
+                contentPadding: const EdgeInsets.symmetric(
+                    vertical: 10.0, horizontal: 10.0),
+                enabledBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 ),
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16.0)),
                 ),
                 labelText: 'password',
@@ -239,28 +301,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  //if this icon is pressed the visibility of the password  field changes
-  Widget _passwordIcon() {
-    if (visibility) {
-      return IconButton(
-          onPressed: () {
-            setState(() {
-              visibility = false;
-            });
-          },
-          icon: const Icon(Icons.visibility_outlined));
-    } else {
-      return IconButton(
-          onPressed: () {
-            setState(() {
-              visibility = true;
-            });
-          },
-          icon: const Icon(Icons.visibility_off_outlined));
-    }
-  }
-
   Widget _signUpButton(context, screenWidth, screenHeight) {
+    //each time the user tries to sign up the validator becomes false, so that
+    //the validating messages will be invisible
+    if (mounted) {
+      setState(() {
+        _validate = false;
+      });
+    }
     return Padding(
       padding: const EdgeInsets.only(top: 10, bottom: 10),
       child: Container(
@@ -272,23 +320,66 @@ class _SignUpScreenState extends State<SignUpScreen> {
         height: screenHeight * 0.05,
         child: TextButton(
           onPressed: () async {
-            //when the button is pressed, check the validity of the form
-            if (_formKey.currentState!.validate()) {
-            dynamic result= await _authServices.registerWithEmailAndPassword(
-                  email, password, name, phone, cart, bookMark);
-            //if the database fails to create a new user the error boolean becomes true and the user is being informed that the email is not proper
-                if(result==null){
+            //when the button is pressed, check the validity of the data
+            if (_name.text.isNotEmpty &&
+                _email.text.isNotEmpty &&
+                _password.text.length >= 6) {
+              //if the data are appropriately formatted, the user is being
+              //registered the an email and password
+              setState(() {
+                loading=true;
+              });
+              dynamic result = await _authServices.registerWithEmailAndPassword(
+                  email, password, name, phone,[], []);
+              //if the database fails to create a new user the error boolean
+              // becomes true and the user is being informed that the email is not proper
+              if (result == null) {
+                if (mounted) {
                   setState(() {
-                    error=true;
+                    loading=false;
+                    error = true;
                   });
-                }else{
-                  Navigator.pop(context);
                 }
+              } else {
+                //if the database creates the user the screen is popped
+                Navigator.pop(context);
+              }
+            } else {
+              //if the data are not properly formatted the validator becomes true
+              if (mounted) {
+                setState(() {
+                  _validate = true;
+                });
+              }
             }
           },
           child: const FittedBox(
               child: Text(
                 'Sign Up',
+                style: TextStyle(color: Colors.black, fontSize: 15),
+              )),
+        ),
+      ),
+    );
+  }
+
+  Widget _logInButton(context, screenWidth, screenHeight) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10, bottom: 10),
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.blueAccent,
+            borderRadius: BorderRadius.circular(32),
+            boxShadow: const [BoxShadow(blurRadius: 4, offset: Offset(0, 1))]),
+        width: screenWidth * 0.6,
+        height: screenHeight * 0.05,
+        child: TextButton(
+          onPressed: () async {
+            Navigator.pop(context);
+          },
+          child: const FittedBox(
+              child: Text(
+                'Back to log in',
                 style: TextStyle(color: Colors.black, fontSize: 15),
               )),
         ),
