@@ -4,7 +4,7 @@ This project is an early version of an online book store that was developed usin
 
 ## Getting Started
 
-The link below contains the apk of a beta version of the application. Currently the application can be run in Android devices.
+The link below contains the apk of a beta version of the application. Currently the application can be run on Android devices.
 
 [APK](https://drive.google.com/file/d/1fEIRNLuKTRv3AHJpg1XCMniYiHXLAJaF/view?usp=sharing)
 
